@@ -1,26 +1,15 @@
 import express from 'express'
-import postgres from 'postgres'
-import 'dotenv/config'
+import { sql } from './postgresql/db_connection.js'
 const app = express()
 
-const { PGHOST, PGDATABASE, PGUSER, PGPASSWORD } = process.env
-const sql = postgres({
-  host: PGHOST,
-  database: PGDATABASE,
-  username: PGUSER,
-  password: PGPASSWORD,
-  port: 5432,
-  ssl: 'require'
-})
 
-;(async () => {
-  const result = await sql`select version()`
-  console.log(`DB connection to ${result[0].version}`)
-})()
-
-
-app.get('/', (req, res) => {
-  res.send('Hello world')
+app.get('/todos', (req, res) => {
+  console.log('Antes de hacer el query')
+  const result = sql`
+  SELECT *
+  FROM todos`
+  console.log('Despues de hacer el query')
+  res.send(result)
 })
 
 app.listen(3000, () => {
