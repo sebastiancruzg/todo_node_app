@@ -1,16 +1,10 @@
 import express from 'express'
-import { sql } from './postgresql/db_connection.js'
+import { tasksRouter } from './routes/tasks.js'
 const app = express()
+app.use(express.json())
+app.disable('x-powered-by')
 
-
-app.get('/todos', (req, res) => {
-  console.log('Antes de hacer el query')
-  const result = sql`
-  SELECT *
-  FROM todos`
-  console.log('Despues de hacer el query')
-  res.send(result)
-})
+app.use('/tasks', tasksRouter)
 
 app.listen(3000, () => {
   console.log('Listening on http://localhost:3000')
