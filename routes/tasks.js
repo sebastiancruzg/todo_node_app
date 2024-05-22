@@ -7,7 +7,7 @@ tasksRouter.route('/')
   .get(async (req, res) => {
     const result = await sql`
       SELECT *
-      FROM tasks
+      FROM tasks;
     `
     res.send(result)
   })
@@ -29,7 +29,7 @@ tasksRouter.route('/')
         INSERT INTO tasks
         (title, description, complete)
         VALUES (${title}, ${description}, ${complete ?? 0})
-        RETURNING *
+        RETURNING *;
       `
       return res.status(201).send(insert)
     } catch (error) {
@@ -49,7 +49,7 @@ tasksRouter.route('/:id')
       await sql`
         DELETE
         FROM tasks
-        WHERE id = ${id}
+        WHERE id = ${id};
       `
       return res.status(200).send('Task deleted succesfuly')
     } catch (error) {
@@ -57,4 +57,26 @@ tasksRouter.route('/:id')
     }
   })
 
+
+  .put(async (req, res) => {
+    const { id } = req.params
+
+    const select = await sql`
+      SELECT id
+      FROM tasks
+      WHERE id = ${id};
+    `
+
+    if (select.length === 0) {
+      return res.status(410).send('task not found')
+    }
+
+    // Execute the update query
+    await sql`
+      UPDATE tasks
+      SET ${sql(req.body, Object.keys(req.body))}
+      WHERE id = ${id};
+    `
+    res.status(200).send('task updated succesfuly')
+  })
 
